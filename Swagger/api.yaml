@@ -1,0 +1,882 @@
+swagger: "2.0"
+info:
+  title: API for RentHub App
+  description: This is the documentation of RentHub Mobile application API
+  version: 1.0
+  contact:
+    email: rehmanwaqas466@gmail.com
+  servers:
+    -url: "https://localhost:4500/"
+  description: This is my local server
+schemes: [http, https]
+
+tags:
+  - name: User
+    description: Operations about User
+  - name: Product
+    description: Access our RentHub products
+  - name: Booking
+    description: Access our RentHub products
+  - name: Message
+    description: Message to the user
+  - name: Admin
+    description: Admin Control Pannel
+
+paths:
+
+# All About User
+# SignUp API
+  /api/signup:
+    post:
+      tags: 
+        - User
+      summary: Adds a new user
+      produces:
+        - application/json
+      consumes:
+        - application/json
+      parameters:
+        - in: body
+          name: Sign Up your account
+          schema:
+            $ref: "#/components/schemas/User"
+      required: true
+      responses:
+        '201':
+          description: User Created Successfully
+        '400':
+          description: User Already Exist
+        '422':
+          description: Required Field Missing  
+        '500':
+          description: Internal server error
+
+# Login API
+  /api/login:
+    post:
+      tags: 
+        - User
+      summary: User Login into the System
+      produces:
+        - application/json
+      consumes:
+        - application/json
+      parameters:
+        - in: body
+          name: Login your Account
+          schema:
+            type: object
+            required:
+              - email
+              - password
+            properties:
+              email: 
+                type: string
+                example: johndoe@gmail.com
+              password:
+                type: string
+                example: hello123                
+      responses:
+        '201':
+          description: Successfully Login
+        '400':
+          description: Incorrect email or Password
+        '404':
+          description: User not  found
+        '500':
+          description: Server error occurred
+
+# LogOut Api
+  /api/loggedOut:
+    get:
+      tags:
+        - User
+      summary: User Logout
+      produces:
+        - application/json
+      consumes:
+        - application/json
+      responses:
+        '200':
+          description: Successfully Logout
+        '404':
+          description: User not found
+        '500':
+          description: Server error occurred
+
+# User Profile
+  /api/userProfile:
+    get:
+      tags:
+        - User
+      summary: Get User Profile
+      produces:
+        - application/json
+      consumes:
+        - application/json
+      responses:
+        '200':
+          description: User Profile
+        '404':
+          description: User not found
+        '500':
+          description: Server error occurred
+
+# Edit User API
+  /api/update-user:
+    put:
+      tags:
+        - User
+      summary: Update User Information
+      produces:
+        - application/json
+      consumes:
+        - application/json
+      parameters:
+        - in: body
+          name: Update User Information
+          schema:
+            type: object
+            properties:
+              name:
+                type: string
+                example: john doe
+              contactNo:
+                type: string
+                example: 0123-4567890
+              gender:
+                type: string
+                example: male
+              profilePic:
+                type: string
+                example: https://avatar.iran.liara.run/public/boy
+              address: 
+                type: string
+                example: Karachi, Pkistan   
+      responses:
+        '201':
+          description: user updated successfully
+        '404':
+          description: User not found
+        '500':
+          description: Server error occurred
+
+# Forgot Password API
+  /api/forgotpassword:
+    post:
+      tags: 
+        - User
+      summary: Forgot your password
+      produces:
+        - application/json
+      consumes:
+        - application/json
+      parameters:
+        - in: body
+          name: change or Forget Your Password
+          schema:
+            type: object
+            required:
+              - email
+            properties:
+              email: 
+                type: string
+                example: johndoe@gmail.com                
+      responses:
+        '200':
+          description: Request Send Successfully
+        '404':
+          description: User not  found
+        '500':
+          description: Server error occurred
+
+# Password Update API
+  /api/update-password:
+    put:
+      tags: 
+        - User
+      summary: Update your password
+      produces:
+        - application/json
+      consumes:
+        - application/json
+      parameters:
+        - in: body
+          name: Update Your Password
+          schema:
+            type: object
+            required:
+              - token
+              - password
+            properties:
+              token: 
+                type: number
+              password:
+                type: string
+                example: add new password               
+      responses:
+        '201':
+          description: Password Updated Succesfully
+        '400':
+          description: Invalid or Expired Token
+        '404':
+          description: User not  found
+
+# Delete User API
+  /api/delete-user:
+    delete:
+      tags:
+        - User
+      summary: Delete User Account
+      produces:
+        - application/json
+      consumes:
+        - application/json
+      # parameters:
+      #   - in: body
+      #     name: Delete User Account
+      #     schema:
+      #       type: object
+      #       required:
+      #         - name
+      #       properties:
+      #         name:
+      #           type: string
+      #           example: john
+      responses:
+        '201':
+          description: User Deleted Successfully
+        '404':
+          description: User not found
+        '500':
+          description: Server error occurred
+
+# Search User API
+  /api/search-user/:name:
+    get:
+      tags:
+        - User
+      summary: Search User by Name
+      produces:
+        - application/json
+      consumes:
+        - application/json
+      parameters:
+        - name: name
+          in: query
+          description: Name of the user
+          required: true
+          schema:
+            type: string
+            example: john
+      responses:
+        '200':
+          description: User Found
+        '404':
+          description: User not found
+        '500':
+          description: Server error occurred
+
+# Get User by Id
+  /api/search-user-email/:email :
+    get:
+      get:
+      tags:
+        - User
+      summary: Search User by Email
+      produces:
+        - application/json
+      consumes:
+        - application/json
+      parameters:
+        - name: email
+          in: query
+          description: Email of the user
+          required: true
+          schema:
+            type: string
+            example: johndoe@gmail.com
+      responses:
+        '200':
+          description: User Found
+        '404':
+          description: User not found
+        '500':
+          description: Server error occurred
+
+# All About Products
+
+# Add Product API
+  /api/addProduct:
+    post:
+      tags:
+        - Product
+      summary: Add Product
+      produces:
+        - application/json
+      consumes:
+        - application/json
+      parameters:
+        - in: body
+          name: Add Product
+          schema:
+            $ref: "#/components/schemas/Products"
+      requires: true
+      responses:
+        '201':
+          description: Product Added Successfully
+        '400':
+          description: Product Already Exist
+        '422':
+          description: Required Field Missing
+        '500':
+          description: Internal server error
+
+# Your Post API
+  /api/yourPost:
+    get:
+      tags:
+        - Product
+      summary: Get Your Post
+      produces:
+        - application/json
+      consumes:
+        - application/json
+      responses:
+        '200':
+          description: Your Post
+        '404':
+          description: No Post Found
+        '500':
+          description: Server error occurred
+
+# Edit Product API
+  /api/editProduct:
+    put:
+      tags:
+        - Product
+      summary: Edit Product
+      produces:
+        - application/json
+      consumes:
+        - application/json
+      parameters:
+        - in: body
+          name: Edit your Product
+          schema:
+            type: object
+            required:
+              - _id
+            properties:
+              _id:
+                type: string
+                example: 5f7jbsauuw7432uni3nri
+              name:
+                type: string
+                example: Iphone 11
+              price:
+                type: number
+                example: 1000
+              description:
+                type: string
+                example: This is the latest model of Iphone
+              category:
+                type: string
+                example: Mobile
+              images:
+                type: [string]
+                example: ["https://www.google.com", "https://www.google.com"]
+      responses:
+        '201':
+          description: Product Updated Successfully
+        '404':
+          description: Product not found
+        '500':
+          description: Server error occurred
+
+# Delete Product API
+  /api/deleteProduct/:id:
+    delete:
+      tags:
+        - Product
+      summary: Delete Product
+      produces:
+        - application/json
+      consumes:
+        - application/json
+      parameters:
+        - name: id 
+          in: query
+          description: id of the Product
+          required: true
+          schema:
+            type: string
+            example: 5f7jbsauuw7432uni3nr
+      responses:
+        '201':
+          description: Product Deleted Successfully
+        '404':
+          description: Product not found
+        '500':
+          description: Server error occurred
+
+# Product find API
+  /api/searchProduct:
+    get:
+      tags:
+        - Product
+      summary: Find Product by Name, Category and Location
+      produces:
+        - application/json
+      consumes:
+        - application/json
+      parameters:
+        - name: name 
+          in: query
+          description: Name of the product
+          required: false
+          schema:
+            type: string
+            example: Iphone 11
+        - name: category 
+          in: query
+          description: Category of the product
+          required: false
+          schema:
+            type: string
+            example: Device
+        - name: location 
+          in: query
+          description: Location of the product
+          required: false
+          schema:
+            type: string
+            example: karachi
+      responses:
+        '200':
+          description: Product Found
+        '404':
+          description: Product not found
+        '500':
+          description: Server error occurred    
+
+# Get All Products
+  /api/allProducts:
+    get:
+      tags:
+        - Product
+      summary: Get All Products
+      produces:
+        - application/json
+      consumes:
+        - application/json
+      responses:
+        '200':
+          description: All Products
+        '404':
+          description: No Product Found
+        '500':
+          description: Server error occurred
+
+# All About Bookings
+# Add Booking API
+  /api/createBooking:
+    post:
+      tags:
+        - Booking
+      summary: Add Booking
+      produces:
+        - application/json
+      consumes:
+        - application/json
+      parameters:
+        - in: body
+          name: Create your Booking
+          schema:
+            $ref: "#/components/schemas/Booking"
+      required: true
+      responses:
+        '201':
+          description: Booking Added Successfully
+        '400':
+          description: Booking Already Exist
+        '422':
+          description: Required Field Missing
+        '500':
+          description: Internal server error
+
+# Get All Booking
+  /api/allBookings:
+    get:
+      tags:
+        - Booking
+      summary: Get All Bookings
+      produces:
+        - application/json
+      consumes:
+        - application/json
+      responses:
+        '200':
+          description: All Bookings
+        '404':
+          description: No Booking Found
+        '500':
+          description: Server error occurred
+
+# Update Booking
+  /api/updateBookingStatus:
+    put:
+      tags:
+        - Booking
+      summary: Update Booking Status
+      produces:
+        - application/json
+      consumes:
+        - application/json
+      parameters:
+        - name: id 
+          in: query
+          description: id of the booking
+          required: true
+          schema:
+            type: string
+            example: 5f7jbsauuw7432uni3nri
+        - in: body
+          name: Update your Booking Date
+          schema:
+            type: object
+            required:
+              - endDate
+            properties:
+              endDate:
+                type: Date
+                example: 2024-06-25
+      responses:
+        '201':
+          description: Booking Updated Successfully
+        '404':
+          description: Booking not found
+        '500':
+          description: Server error occurred
+
+# Delete booking 
+  /api/deleteBooking/:id:
+    delete:
+      tags:
+        - Booking
+      summary: Delete Booking
+      produces:
+        - application/json
+      consumes:
+        - application/json
+      parameters:
+        - name: id 
+          in: query
+          description: id of the booking
+          required: true
+          schema:
+            type: string
+            example: 5f7jbsauuw7432uni3nri
+      responses:
+        '201':
+          description: Booking Deleted Successfully
+        '404':
+          description: Booking not found
+        '500':
+          description: Server error occurred  
+
+#All About Messages
+# Send Message API
+  /api/sendMessage/:id:
+    post:
+      tags:
+        - Message
+      summary: Send Message
+      produces:
+        - application/json
+      consumes:
+        - application/json
+      parameters:
+        - name: receiverId
+          in: query
+          description: id of the receiver
+          required: true
+          schema:
+            type: string
+            example: 5f7jbsauuw7432uni3nri
+        - in: body
+          name: Send Message
+          schema:
+            type: object
+            required:
+              - message
+            properties:
+              message:
+                type: string
+                example: Hello
+      required: true
+      responses:
+        '201':
+          description: Message Sent Successfully
+        '400':
+          description: Message not Sent
+        '422':
+          description: Required Field Missing
+        '500':
+          description: Internal server error 
+
+# Get All Messages
+  /api/getMessage/:id:
+    get:
+      tags:
+        - Message
+      summary: Get All Messages
+      produces:
+        - application/json
+      consumes:
+        - application/json
+      parameters:
+        - name: userToChatId
+          in: query
+          description: id of the Chat
+          required: true
+          schema:
+            type: object
+            properties:
+              _id:
+                type: string
+                example: 5f7jbsauuw7432uni3nri
+      responses:
+        '200':
+          description: All Messages
+        '404':
+          description: No Message Found
+        '500':
+          description: Server error occurred
+
+# Get Sidebar Contact
+  /api/getAllContacts:
+    get:
+      tags:
+        - Message
+      summary: Get All Contacts for Sidebar
+      produces:
+        - application/json
+      consumes:
+        - application/json
+      parameters:
+        - name: userId
+          in: query
+          description: id of the receiver
+          required: true
+          schema:
+            type: string
+            example: 5f7jbsauuw7432uni3nri
+      responses:
+        '200':
+          description: All Contacts
+        '404':
+          description: No Message Found
+        '500':
+          description: Server error occurred
+
+
+# Admin Pannel
+# Get all users
+  /api/allUsers:
+    get:
+      tags:
+        - Admin
+      Summary: Only admin can get all users 
+      produces:
+        - application/json
+      consumes:
+        - application/json
+      responses:
+        '200':
+          description: All Users
+        '404':
+          description: No user Found
+        '500':
+          description: Server error occurred
+
+# Get all Products
+  /api/all-Products:
+    get:
+      tags:
+        - Admin
+      summary: Only admin can get all products
+      produces:
+        - application/json
+      consumes:
+        - application/json
+      responses:
+        '200':
+          description: All Products
+        '404':
+          description: No product Found
+        '500':
+          description: Server error occurred
+ 
+# delete user
+  /api/deleteUsers/:id:
+    delete:
+      tags:
+        - Admin
+      summary: Delete User Account
+      produces:
+        - application/json
+      consumes:
+        - application/json
+      parameters:
+        - name: id
+          in: query
+          description: id of the user
+          required: true
+          schema:
+            type: string
+            example: 5f7jbsauuw7432uni3nr
+      responses:
+        '201':
+          description: User Deleted Successfully
+        '404':
+          description: User not found
+        '500':
+          description: Server error occurred
+
+# delete Product
+  /api/delete-product/:id:
+    delete:
+      tags:
+        - Admin
+      summary: Only admin can delete product
+      produces:
+        - application/json
+      consumes:
+        -application/json
+      parameters:
+        - name: id 
+          in: query
+          description: id of the Product
+          required: true
+          schema:
+            type: string
+            example: 5f7jbsauuw7432uni3nr
+      responses:
+        '201':
+          description: Product Deleted Successfully
+        '404':
+          description: Product not found
+        '500':
+          description: Server error occurred
+
+# Users Length
+  /api/users-length:
+    get:
+      tags:
+        - Admin
+      summary: Get Users Length
+      produces:
+        - application/json
+      consumes:
+        - application/json
+      responses:
+        '200':
+          description: Total Users
+        '404':
+          description: No User Found
+        '500':
+          description: Server error occurred
+
+# Products Length
+  /api/products-length:
+    get:
+      tags:
+        - Admin
+      summary: Get Products Length
+      produces:
+        - application/json
+      consumes:
+        - application/json
+      responses:
+        '200':
+          description: Total Products
+        '404':
+          description: No Product Found
+        '500':
+          description: Server error occurred
+
+# All Bookings
+  /api/all-bookings:
+    get:
+      tags:
+        - Admin
+      summary: Get All Bookings
+      produces:
+        - application/json
+      consumes:
+        - application/json
+      responses:
+        '200':
+          description: All Bookings
+        '404':
+          description: No Booking Found
+        '500':
+          description: Server error occurred
+
+# Model
+components:
+  schemas:
+    User:
+      type: object
+      properties: 
+        name:
+          type: string
+          example: "Waqas"
+        email:
+          type: string
+          example: "waqas@gmail.com"
+        contactNo:
+          type: string
+          example: "0300-1234567"
+        password:
+          type: string
+          example: "12345678"
+    Products:
+      type: object
+      properties:
+        name:
+          type: string
+          example: "Iphone 11"
+        price:
+          type: number
+          example: 1000
+        description:
+          type: string
+          example: "This is the latest model of Iphone"
+        category:
+          type: string
+          example: "Mobile"
+        location:
+          type: string
+          example: "Lahore"
+        type:
+          type: string
+          example: "Rent"
+        images:
+          type: [string]
+          example: ["https://www.google.com"]
+    Booking:
+      type: object
+      properties:
+        product:
+          type: string
+          example: "5f7jbsauuw7432uni3nri"
+        startDate:
+          type: Date
+          example: "2024-06-16"
+        endDate:
+          type: Date
+          example: "2020-06-20"
+        
+      
