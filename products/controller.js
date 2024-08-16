@@ -86,14 +86,12 @@ const updateProduct = async (req, res) => {
 };
 
 const deleteProduct = async (req, res) => {
-
   const { id } = req.query;
   const userId = req.user.id;
 
   if (!id) {
     res.status(404).json({ message: "ProductID is required" });
-  } 
-  else {
+  } else {
     try {
       const product = await productSchema.findByIdAndDelete(id);
       if (!product) {
@@ -113,7 +111,7 @@ const deleteProduct = async (req, res) => {
 
 const allProducts = async (req, res) => {
   try {
-    const products = await productSchema.find();
+    const products = await productSchema.find().populate("createdBy").exec();
     res.status(200).json({ Products: products });
     if (!products) {
       return res.status(404).json({ message: "Product not found" });
