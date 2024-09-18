@@ -1,5 +1,6 @@
 const productSchema = require("./schema");
 const userschema = require("../Users/schema");
+const Booking = require("../reservationSystem/schema");
 
 const addProduct = async (req, res) => {
   const { name, price, category, description, location, type, images } =
@@ -31,6 +32,9 @@ const addProduct = async (req, res) => {
           images,
         });
 
+        // emit event using socket.io
+        req.io.emit("productUpdated", createProduct);
+
         return res.status(201).json({
           message: "Product created Successfully",
           createProduct,
@@ -52,9 +56,29 @@ const yourPost = async (req, res) => {
       return res.status(400).json({ message: "UnAuthorized User" });
     }
 
-    const allProducts = await productSchema.find({ createdBy });
+    const items = await productSchema.find({ createdBy });
+    const itemsWithClientDetails = await Promise.all(
+      items.map(async (item) => {
+        const bookings = await Booking.find({ product: item._id }).populate(
+          "user",
+          "name email contactNo"
+        ); // Assuming 'User' model has 'name' and 'email' fields
+        const clientsWithBookingDetails = bookings.map((booking) => ({
+          client: booking.user, // Client details
+          startDate: booking.startDate, // Booking start date
+          endDate: booking.endDate, // Booking end date
+        }));
 
-    return res.status(200).json({ message: "Your Post", allProducts, user });
+        return {
+          ...item._doc, // Spread the item fields
+          bookings: clientsWithBookingDetails, // List of clients with booking dates
+        };
+      })
+    );
+
+    res.json(itemsWithClientDetails);
+
+    // return res.status(200).json({ message: "Your Post", items, user });
   } catch (error) {
     return res.status(500).json({ message: error.message });
   }
@@ -144,7 +168,7 @@ const searchProduct = async (req, res) => {
 
     const findProduct = await productSchema.find(filter);
 
-    if (findProduct.length > 0) {
+    if (findProduct.length >= 0) {
       return res.status(200).json({ Products: findProduct });
     } else {
       return res.status(404).json({ message: "Product not found" });

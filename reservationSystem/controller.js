@@ -1,34 +1,43 @@
+const Booking = require("./schema");
 const bookingSchema = require("./schema");
+const userschema = require("../Users/schema");
 
 // Create booking
 const createBooking = async (req, res) => {
-  const { product, startDate, endDate } = req.body;
-  const user = req.user.id;
-  try {
-    let checkStatus = await bookingSchema.findOne({ product });
+  console.log("api hit");
+  const { product, startDate, endDate } = req?.body;
+  const user = req?.user?.id;
+  // try {
+  // console.log("api hit in try block");
+  // let checkStatus = await bookingSchema.findOne({ product });
 
-    if (checkStatus) {
-      return res
-        .status(400)
-        .json({ message: "This Product is already booked" });
-    }
+  // if (checkStatus) {
+  //   return res.status(400).json({ message: "This Product is already booked" });
+  // }
+  // console.log("check status: ", checkStatus);
 
-    const newBooking = new bookingSchema({
-      user,
-      product,
-      startDate,
-      endDate,
-      status: "booked",
-    });
+  const newBooking = await Booking.create({
+    user,
+    product,
+    startDate,
+    endDate,
+    status: "booked",
+  });
 
-    await newBooking.save();
-    return res.status(201).json({
-      message: "Booking created successfully",
-      newBooking,
-    });
-  } catch (error) {
-    return res.status(500).json({ message: error.message });
-  }
+  console.log("booking object creation: ", newBooking);
+
+  // console.log("booking creation in Db: ", booking);kc
+
+  //emit events
+  req.io.emit("bookingCreated", newBooking);
+
+  return res.status(201).json({
+    message: "Booking created successfully",
+    newBooking,
+  });
+  // } catch (error) {
+  //   return res.status(500).json({ message: error.message });
+  // }
 };
 
 // Get all bookings
@@ -83,9 +92,27 @@ const deleteBooking = async (req, res) => {
   }
 };
 
+// myBooking
+const myBooking = async (req, res) => {
+  const bookedBy = req.user.id;
+  try {
+    const user = await userschema.findById(bookedBy).select("-password");
+    if (!user) {
+      return res.status(400).json({ message: "UnAuthorized User" });
+    }
+
+    const allBookings = await bookingSchema.find({ user: bookedBy }).populate('product').exec();
+
+    return res.status(200).json({ message: "Your Post", allBookings, user });
+  } catch (error) {
+    return res.status(500).json({ message: error.message });
+  }
+};
+
 module.exports = {
   createBooking,
   allBookings,
   updateBookingStatus,
   deleteBooking,
+  myBooking,
 };

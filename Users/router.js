@@ -11,6 +11,7 @@ const {
   searchByEmail,
   userProfile,
   logOut,
+  updatePassword,
 } = require("./controller");
 const protectRoute = require("../middleware/protectRoute");
 const router = express.Router();
@@ -19,15 +20,16 @@ router.get("/all-users", allusers);
 router.get("/search-user/:name", searchUser);
 router.get("/search-user-email/:email", searchByEmail);
 router.get("/userProfile", protectRoute, userProfile);
-router.get("/loggedOut", protectRoute, logOut)
+router.get("/loggedOut", protectRoute, logOut);
 
 router.post("/login", login);
 router.post("/signup", signup);
 router.post("/forgotpassword", forgotPass);
 
 router.put("/update-password", updatePass);
-router.put("/update-user",protectRoute, editUser);
+router.put("/update-user", protectRoute, editUser);
 
-router.delete("/delete-user",protectRoute, deleteuser);
+router.delete("/delete-user", protectRoute, deleteuser);
+router.put("/update-user-password", protectRoute, updatePassword);
 
 module.exports = router;

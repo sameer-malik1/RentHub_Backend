@@ -30,6 +30,8 @@ const sendMessage = async (req, res) => {
     }
 
     await Promise.all([newMessage.save(), conversation.save()]);
+    req.io.emit('messageSent',newMessage);
+    console.log('newMessage: ',newMessage);
     return res.status(201).json(newMessage);
   } catch (error) {
     return res.status(500).json({ error: "Internal Server Error" });

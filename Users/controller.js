@@ -34,13 +34,13 @@ const signup = async (req, res) => {
         password: await hash(password, 10),
       });
 
-      if (newUser) {
-        await newUser.save();
-        return res.status(201).json({
-          message: "User Created Successfully",
-          newUser,
-        });
-      }
+      // emit event using socket.io
+      req.io.emit("userCreated", newUser);
+
+      return res.status(201).json({
+        message: "User Created Successfully",
+        newUser,
+      });
     } catch (error) {
       return res.status(500).json({ message: error.message });
     }
@@ -77,6 +77,7 @@ const login = async (req, res) => {
               gender: checkUser.gender,
               profilePic: checkUser.profilePic,
               address: checkUser.address,
+              role: checkUser.role,
               token: token,
             });
         }
@@ -197,7 +198,9 @@ const deleteuser = async (req, res) => {
   const userId = req.user.id;
   if (userId) {
     try {
-      const deleteUser = await userSchema.findByIdAndDelete(userId).select("-password");
+      const deleteUser = await userSchema
+        .findByIdAndDelete(userId)
+        .select("-password");
       res
         .status(200)
         .json({ message: "User Deleted Successfully", deleteUser });
@@ -236,6 +239,43 @@ const searchByEmail = async (req, res) => {
   }
 };
 
+// const bcrypt = require('bcrypt');
+// const userSchema = require('../models/user'); // Your User model
+const saltRounds = 10; // Number of salt rounds for hashing
+
+const updatePassword = async (req, res) => {
+  console.log(req.user.id);
+  console.log(req.body);
+  const { oldPassword, newPassword } = req.body;
+  const userId = req.user.id; // Assuming you're using some authentication middleware
+
+  try {
+    // Fetch the user from the database
+    const user = await userSchema.findById(userId);
+    if (!user) {
+      return res.status(404).json({ message: "User not found" });
+    }
+
+    // Compare oldPassword with the user's stored hashed password
+    const isMatch = await compare(oldPassword, user.password);
+    if (!isMatch) {
+      return res.status(400).json({ message: "Old password is incorrect" });
+    }
+
+    // Hash the new password
+    const hashedNewPassword = await hash(newPassword, saltRounds);
+
+    // Update the user's password in the database
+    user.password = hashedNewPassword;
+    await user.save();
+
+    res.status(200).json({ message: "Password updated successfully" });
+  } catch (error) {
+    console.error("Error updating password:", error.message);
+    res.status(500).json({ message: "Server error, please try again later" });
+  }
+};
+
 module.exports = {
   allusers,
   signup,
@@ -248,4 +288,5 @@ module.exports = {
   deleteuser,
   searchUser,
   searchByEmail,
+  updatePassword,
 };
